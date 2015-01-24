@@ -14,6 +14,8 @@
         var game = new Phaser.Game(1280, 800, Phaser.AUTO, '', {preload: preload, create: create, update: update, render: render});   
 
         function preload () {
+            game.load.spritesheet('girl', 'img/girl_spritesheet_idle.png',138,139);
+            game.load.spritesheet('ghost', 'img/shade_spritesheet_idle.png',200,300);
             game.load.spritesheet('girl', 'img/girl_spritesheet_idle.png',200,200);
             game.load.spritesheet('ghost', 'img/shade_spritesheet_idle.png',184,276);
             game.load.spritesheet('floor', 'img/holdbg.png');
@@ -21,6 +23,7 @@
         }
 
         var spriteLayer;
+        var bg;
         var ghostLayer;
 
         var ghost, girl, mouse;
@@ -30,33 +33,30 @@
         var ghostSpeed = 2;
         var girlSpeed = 200;
         var jumpTimer = 0;
+
+        var ghostFacing = "right";
+        var girlFacing = "left";
+
         var ghostFacing = 'right';
         var girlFacing = 'right';
         function create () {
 
+            game.world.setBounds(0,0,2560,800)
 
             spriteLayer = game.add.group();
             spriteLayer.enableBody = true;
             spriteLayer.physicsBodyType = Phaser.Physics.ARCADE;            
             spriteLayer.collideWorldBounds = true;
 
+            girl = spriteLayer.create(game.world.x = 50,game.world.centerY, 'girl');  
+            girl.animations.add('girlIdle', [0,1,2] ,4,true);    
+            girl.anchor.setTo(.5,1);      
+            girl.animations.play('girlIdle');
+
             ghostLayer = game.add.group();
             ghostLayer.enableBody = true;
             ghostLayer.physicsBodyType = Phaser.Physics.ARCADE;
             ghostLayer.collideWorldBounds = true;
-
-            mouse = spriteLayer.create(300,100, 'mouse');
-            mouse.scale.set(0.5,0.5);
-            mouse.animations.add('nice',[0,1,2,3,2,1]);
-            mouse.animations.add('angry',[4,5,6,7,6,5]);
-            mouse.animations.add('ghost',[8]);
-            mouse.animations.play('nice', 4, true);
-
-
-            floor = game.add.tileSprite(0,800-195,1280,800,'floor');
-            game.physics.enable(floor,Phaser.Physics.ARCADE);
-            floor.body.immovable = true;
-            floor.body.allowGravity = false;
 
             ghost = ghostLayer.create(game.world.centerX, game.world.centerY, 'ghost');
             ghost.collideWorldBounds = true;
@@ -66,28 +66,33 @@
             ghost.body.gravity.y = 0;
             ghost.body.allowGravity = false;
 
-            game.stage.backgroundColor='#666';
-            //game.physics.enable(ghost, Phaser.Physics.P2JS);
+           
 
-            //Girl Initialization
-            girl = spriteLayer.create(game.world.x = 50,game.world.centerY, 'girl');
-            //girl = game.add.sprite(game.world.x = 50,game.world.centerY, 'girl');       
-            //game.physics.enable(girl, Phaser.Physics.ARCADE);
-            //game.physics.arcade.collide(girl, bg);
-            //girl.body.collideWorldBounds = true;
-            girl.body.checkCollision.up = true;
-            girl.body.checkCollision.down = true;
-            girl.body.checkCollision.left= true;
-            girl.body.checkCollision.right = true;
+            
+            
+            mouse = spriteLayer.create(300,100, 'mouse');
+            mouse.scale.set(0.5,0.5);
+            mouse.animations.add('nice',[0,1,2,3,2,1]);
+            mouse.animations.add('angry',[4,5,6,7,6,5]);
+            mouse.animations.add('ghost',[8]);
+            mouse.animations.play('nice', 4, true);
+
+
+            
+            spriteLayer.collideWorldBounds = true;
             game.camera.follow(girl);
-            girl.body.bounce.y = 0.1;
-            //game.camera.follow(girl,bg);
-            girl.anchor.setTo(.5,1);
-            girl.animations.add('girlIdle', [0,1,2] ,4,true);
-            game.camera.follow(girl,floor);
-            girl.animations.play('girlIdle');
 
-            //button references
+            floor = game.add.tileSprite(0,800-195,1280,800,'floor');
+            game.physics.enable(floor,Phaser.Physics.ARCADE);
+            floor.body.immovable = true;
+            floor.body.allowGravity = false;
+
+            game.stage.backgroundColor='#00FF00';
+
+            
+
+            game.stage.backgroundColor='#666';
+
             cursors = game.input.keyboard.createCursorKeys();
             jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR); 
             wasd = {
@@ -100,15 +105,16 @@
         }
 
         function render(){
-            game.debug.bodyInfo(ghost, 32,32);
         }
 
         function update()
         {
+
+            
             game.physics.arcade.collide(ghostLayer,floor);
             if(game.physics.arcade.collide(spriteLayer,floor))
             {
-                //custom on_floor
+
                 girl.floored = true;
             } else {
                 girl.floored = false;
@@ -135,6 +141,9 @@
             var ghostDist = (ghost.x - mouse.body.x);
             var dist = girl.body.x - mouse.body.x;
 
+
+
+
             mouse.body.acceleration.x = dist;
             if(mouse.scale.x > 0 && mouse.body.velocity.x > 0) mouse.scale.x *=-1;
             if(mouse.scale.x < 0 && mouse.body.velocity.x < 0) mouse.scale.x *=-1;
@@ -150,8 +159,9 @@
                 mouse.animations.play('nice',4,true);
             }
 
-            //girl.body.velocity.x = 0;
-            //girl.body.velocity.y = 0;
+
+
+
             if(wasd.left.isDown){
                 girl.body.velocity.x = -girlSpeed;
                 girlFacing = 'left';
@@ -169,6 +179,7 @@
             if(girl.body.onFloor()) {
                 console.log(girl.body.onFloor());
             }
+
             if (wasd.up.isDown && girl.floored && game.time.now > jumpTimer)
             {
                 girl.body.velocity.y = -200;
@@ -176,8 +187,12 @@
                 girl.body.velocity.y = -250;
                 jumpTimer = game.time.now + 750;
             }
+
             if(girl.floored && Math.abs(girl.body.acceleration.x) < 0.01) {
                 girl.body.velocity.x *= .95;
+            }
+            if(Math.abs(ghost.body.acceleration.x) < 0.01) {
+                ghost.body.velocity.x *= .95;
             }
 
         }
