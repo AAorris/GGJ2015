@@ -30,24 +30,134 @@ BasicGame.Game = function (game) {
 BasicGame.Game.prototype = {
 
     create: function () {
-        this.jam = {
+        var game = this.game;
+        game.world.setBounds(-1280,0,2560,800);
+        this.game.physics.arcade.gravity.y = 250;
+        this.jam = {};
+        var jam = this.jam;
+        var treeline = jam.treeline = game.add.tileSprite(0,-50,2006,778,'treeline');
+        var floor = jam.floor = game.add.tileSprite(-800,600+100,1920,160,'floor');
+        var house = jam.house = game.add.tileSprite(0,400+100,1192,542,'house');
 
-        }
+
+        partner = game.add.sprite(50,50,'mouse');
+
+        house.scale.set(0.5,0.5);
+
+        game.physics.enable(floor,Phaser.Physics.ARCADE);
+        floor.body.immovable = true;
+        floor.body.allowGravity = false;
+        floor.body.setSize(1280,800,0,60);
+
         this.jam.sprites = this.add.group();
-        this.jam.sprites.create(100,100,'girl');
+        jam.sprites.enableBody = true;
+        jam.sprites.physicsBodyType = Phaser.Physics.ARCADE;
+        jam.sprites.collideWorldBounds = true;
+        //jam.girl = new Girl(this.game, jam.sprites,150,150);
+
+        jam.users = [];
+
+        publicJam = jam;
+
         console.log("Created.");
 
-        this.game.network.server.exports.update = function(id, state) {
-            console.log("Updating id: "+id);
-        }
         //  Honestly, just about anything could go here. It's YOUR game after all. Eat your heart out!
+        game.network = {
+            client : false,
+            server : false,
+            ready: false,
+            jam:false,
+            id: 0,
+            onComplete : function() {},
+            setup : function(jam) {
+                console.log("Setting up my jam...");
+                this.jam = jam;
 
+                var client = new Eureca.Client();
+                game.network.client = client;
+
+                client.ready(function(proxy) {
+                    game.network.server = proxy;
+                    game.network.ready = true;
+                    console.log("Got Proxy.");
+                });
+
+                client.exports.setId = function(id) {
+                    console.log("Setting id");
+                    console.log(game.network);
+                    game.network.id = id;
+                    game.network.server.handshake();
+                }
+
+                console.log("Jam:");
+                console.log(this.jam);
+                client.exports.createUser = function(i, x, y)
+                {
+                    if(!i) return;
+                    console.log("Got i of "+i);
+                    for(var user in publicJam.users) {
+                        if(user.id == i) return;
+                    }
+
+                    console.log("Creating user!");
+                    console.log(publicJam);
+                    var user = new Girl(game,publicJam.sprites,x,y,i);
+                    publicJam.users[i] = user;
+                }
+                client.exports.removeUser = function(id)
+                {    
+                    publicJam.users[id].remove();
+                    console.log('killing ', id, publicJam.users[id]);
+                }
+                client.exports.forClient = function(data)
+                {
+                    console.log("Got client data!");
+                    console.log(data);
+                    userData = data;
+                }
+                client.exports.serverToUser = function(id, state)
+                {
+                    var users = publicJam.users;
+                    if(users[id]) {
+                        publicJam.users[id].girl.body.x = state.x;
+                        publicJam.users[id].girl.body.y = state.y;
+
+                        //print(state.x+ " " +users[id].girl.body.x);
+                        //console.log(users[id]);
+                        //console.log(id+" was at "+state.x + " " + state.y);
+                        users[id].anim = state.anim;
+                    }
+                }
+                return this;
+            }
+        };
+        this.game.network.setup(jam);
     },
 
     update: function () {
-
+        if(!this.game.network.ready) return;
+        for(var user in this.jam.users){
+            if(user == this.game.network.id)
+                publicJam.users[user].update();
+        }
         //  Honestly, just about anything could go here. It's YOUR game after all. Eat your heart out!
-
+        //this.jam.girl.update();
+        this.game.physics.arcade.collide(this.jam.sprites,this.jam.floor);
+        this.jam.treeline.x = this.game.camera.x*0.9;
+        for (var i = 0; i < publicJam.users.length; i++) {
+            console.log(publicJam.users[i]);
+            publicJam.users[i].update();
+        };
+        if(typeof userData != "undefined") {
+            console.log(userData);
+            for(var user in userData) {
+                if(user == this.game.network.id) continue;
+                partner.x = userData[user].x;
+                partner.y = userData[user].y;
+                //console.log(partner.x+" "+partner.y);
+                //break;
+            }
+        }
     },
 
     quitGame: function (pointer) {

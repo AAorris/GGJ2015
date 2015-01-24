@@ -30,10 +30,12 @@ BasicGame.Preloader.prototype = {
 		//this.load.bitmapFont('caslon', 'fonts/caslon.png', 'fonts/caslon.xml');
 		//	+ lots of other required assets here
 
-        this.load.spritesheet('girl', 'img/girl_spritesheet_idle.png',200,200);
+        this.load.spritesheet('girl', 'img/girl_spritesheet_aggregate.png',113,105,11);
         this.load.spritesheet('ghost', 'img/shade_spritesheet_idle.png',184,276);
-        this.load.spritesheet('floor', 'img/holdbg.png');
+        this.load.spritesheet('floor', 'img/Groundtile.png',320,160);
+        this.load.spritesheet('treeline', 'img/tree-layer.png',2006,778);
         this.load.spritesheet('mouse', 'img/mouse.png', 225, 113, 12);
+        this.load.spritesheet('house', 'img/background_house1.png', 1192, 542);
 
 	},
 
@@ -61,12 +63,9 @@ BasicGame.Preloader.prototype = {
 			this.state.start('MainMenu');
 		}*/
 
-		if(this.game.network.ready) {
-			this.ready = true;
-			this.state.start('MainMenu');
-		} else {
-			console.log("Stuck");
-		}
+		this.ready = true;
+		//console.log("Network ready.");
+		this.state.start('MainMenu');
 
 	}
 
