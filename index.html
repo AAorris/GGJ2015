@@ -14,14 +14,14 @@
         var game = new Phaser.Game(1280, 800, Phaser.AUTO, '', {preload: preload, create: create, update: update, render: render});
 
         function preload () {
-            game.load.spritesheet('girl', 'img/girl.png')
-            game.load.spritesheet('ghost', 'img/ghost.png');
+            game.load.spritesheet('girl', 'img/girl_spritesheet_idle.png',138,139);
+            game.load.spritesheet('ghost', 'img/shade_spritesheet_idle.png',200,300);
             game.load.spritesheet('floor', 'img/holdbg.png');
             game.load.spritesheet('mouse', 'img/mouse.png', 225, 113, 12);
         }
 
         var spriteLayer;
-
+        var bg;
         var ghost, girl, mouse;
         var floor;
         var cursors, wasd, jumpButton;
@@ -29,11 +29,22 @@
         var girlSpeed = 200;
         var jumpTimer = 0;
 
+        var ghostFacing = "right";
+        var girlFacing = "left";
+
         function create () {
+            game.world.setBounds(0,0,2560,800)
             spriteLayer = game.add.group();
             spriteLayer.enableBody = true;
             spriteLayer.physicsBodyType = Phaser.Physics.ARCADE;
 
+            girl = spriteLayer.create(game.world.x = 50,game.world.centerY, 'girl');  
+            girl.animations.add('girlIdle', [0,1,2] ,4,true);    
+            girl.anchor.setTo(.5,1);      
+            girl.animations.play('girlIdle');
+
+            
+            
             mouse = spriteLayer.create(300,100, 'mouse');
             mouse.scale.set(0.5,0.5);
             mouse.animations.add('nice',[0,1,2,3,2,1]);
@@ -41,37 +52,29 @@
             mouse.animations.add('ghost',[8]);
             mouse.animations.play('nice', 4, true);
 
-            girl = spriteLayer.create(game.world.x = 50,game.world.centerY, 'girl');            
+            
             spriteLayer.collideWorldBounds = true;
-            //spriteLayer.bounce.y = 0.1;
+            game.camera.follow(girl);
 
-            //floor
             floor = game.add.tileSprite(0,800-195,1280,800,'floor');
 
             game.physics.enable([floor,mouse],Phaser.Physics.ARCADE);
             floor.body.immovable = true;
             floor.body.allowGravity = false;
 
-            //floor.fixedToCamera = true;
-
             ghost = game.add.sprite(game.world.centerX, game.world.centerY, 'ghost');
+            ghost.animations.add('idle', [0,1,2,3,4], 7, true);
+            ghost.anchor.setTo(.5,1);
+            ghost.animations.play('idle');
             game.physics.enable(ghost, Phaser.Physics.P2JS);
 
-            // ghost.body.collideWorldBounds = true;
-            // ghost.body.bounce.y = 0.1;
-            // ghost.body.bounce.x = 0.1;
 
             game.stage.backgroundColor='#00FF00';
 
-            //game.physics.startSystem(Phaser.Physics.ARCADE);
-
-            //Girl Initialization
-            
             
             game.camera.follow(girl,floor);
 
 
-            //button references
             cursors = game.input.keyboard.createCursorKeys();
             jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR); 
             wasd = {
@@ -85,14 +88,14 @@
         }
 
         function render(){
-            //game.debug.bodyInfo(girl, 32, 320);
+
         }
 
         function update()
         {
             if(game.physics.arcade.collide(spriteLayer,floor))
             {
-                //custom on_floor
+
                 girl.floored = true;
             } else {
                 girl.floored = false;
@@ -100,15 +103,21 @@
 
             if(cursors.left.isDown){
                 ghost.x -= ghostSpeed;
+                ghostFacing = 'left';
+                ghost.scale.x=-1;
             }
             if(cursors.right.isDown){
                 ghost.x += ghostSpeed;
+                ghostFacing = 'right';
+                ghost.scale.x=1;
             }
             if(cursors.up.isDown){
                 ghost.y -= ghostSpeed;
+                ghostFacing = 'up';
             }
             if(cursors.down.isDown){
                 ghost.y +=ghostSpeed;
+                ghostFacing = 'down';
             }
 
             var dist = (girl.body.x - mouse.body.x);
@@ -128,16 +137,19 @@
                 mouse.animations.play('nice',4,true);
             }
 
-            //girl.body.velocity.x = 0;
-            //girl.body.velocity.y = 0;
             if(wasd.left.isDown){
                 girl.body.velocity.x = -girlSpeed;
+                girlFacing = 'left';
+                girl.scale.x=-1;
             }
             if(wasd.right.isDown){
                 girl.body.velocity.x = girlSpeed;
+                girlFacing = 'right'
+                girl.scale.x=1;
             }
             if(wasd.down.isDown){
                 girl.body.velocity.y = +girlSpeed;
+                girlFacing = 'down';
             }
             if(girl.body.onFloor()) {
                 console.log(girl.body.onFloor());
