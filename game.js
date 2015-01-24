@@ -40,7 +40,7 @@ BasicGame.Game.prototype = {
         var house = jam.house = game.add.tileSprite(0,400+100,1192,542,'house');
 
 
-        partner = game.add.sprite(50,50,'girl');
+        //partner = game.add.sprite(50,50,'girl');
 
         house.scale.set(0.5,0.5);
 
@@ -95,18 +95,27 @@ BasicGame.Game.prototype = {
                 {
                     //if(i == window.netID) return;
                     console.log("Got i of "+i);
-                    if(i == window.netID) console.log("That's me!");
+
+                    for(var id in window.characters) {
+                        if(id==i) {
+                            console.log("Already here!");
+                            return;
+                        }
+                    }
 
                     console.log("Creating user!");
                     //console.log(publicJam);
-                    publicJam.users[i] = new Girl(game,publicJam.sprites,x,y,i);
-                    publicJam.users[i].init();
-
-                    console.log(publicJam.users);
+                    window.characters[i] = new Girl(game,publicJam.sprites,x,y,i);
+                    window.characters[i].init();
+                    if(i == window.netID){
+                        console.log("That's me!");
+                        game.camera.follow(window.characters[i].girl);
+                    }
+                    console.log(window.characters);
                 }
                 client.exports.removeUser = function(id)
                 {    
-                    publicJam.users[id].remove();
+                    window.characters[i].remove();
                     console.log('killing ', id, publicJam.users[id]);
                 }
                 client.exports.forClient = function(data)
@@ -115,6 +124,7 @@ BasicGame.Game.prototype = {
                 }
                 client.exports.serverToUser = function(id, state)
                 {
+
                     var users = publicJam.users;
                     if(users[id]) {
                         publicJam.users[id].girl.body.x = state.x;
@@ -134,13 +144,24 @@ BasicGame.Game.prototype = {
 
     update: function () {
         if(!this.game.network.ready) return;
+        if(!window.characters) return;
+        if(!window.userData) return;
 
-        for(var user in this.jam.users) {
+        //console.log("winning");
+
+        for(var user in window.userData) {
             if(user == window.netID){
-                publicJam.users[user].update();
-            } else {
-                publicJam.users[user].girl.body.x = window.userData[user].x;//.set(window.userData[user]);
-                publicJam.users[user].girl.body.y = window.userData[user].y;
+                //console.log(window.userData[user]);
+                window.characters[user].update();
+            } else if(window.characters[user]) {
+                //console.log(window.userData[user]);
+                //console.log("chars");
+                //console.log(window.characters[user]);
+                //console.log(window.characters[user][user]);
+                window.characters[user].body.x = window.userData[user].x;
+                window.characters[user].body.y = window.userData[user].y;
+                //publicJam.users[user].girl.body.x = window.userData[user].x;//.set(window.userData[user]);
+                //publicJam.users[user].girl.body.y = window.userData[user].y;
             }
         }
         //  Honestly, just about anything could go here. It's YOUR game after all. Eat your heart out!
@@ -151,16 +172,16 @@ BasicGame.Game.prototype = {
             //console.log(publicJam.users[i]);
             publicJam.users[i].update();
         };
-        if(typeof userData != "undefined") {
-            //console.log(userData);
-            for(var user in userData) {
-                if(user == this.game.network.id) continue;
-                partner.x = userData[user].x;
-                partner.y = userData[user].y;
-                //console.log(partner.x+" "+partner.y);
-                //break;
-            }
-        }
+        // if(typeof userData != "undefined") {
+        //     //console.log(userData);
+        //     for(var user in userData) {
+        //         if(user == this.game.network.id) continue;
+        //         partner.x = userData[user].x;
+        //         partner.y = userData[user].y;
+        //         //console.log(partner.x+" "+partner.y);
+        //         //break;
+        //     }
+        // }
     },
 
     quitGame: function (pointer) {

@@ -31,7 +31,6 @@ Girl = function(game, layer, x, y, id) {
 	    this.body = this.girl.body;
 	    this.touching = this.girl.body.touching;
 	    this.baseScale = 1.0;
-	    game.camera.follow(girl);
 	}
 }
 
