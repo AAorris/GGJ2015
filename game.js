@@ -40,7 +40,7 @@ BasicGame.Game.prototype = {
         var house = jam.house = game.add.tileSprite(0,400+100,1192,542,'house');
 
 
-        partner = game.add.sprite(50,50,'mouse');
+        partner = game.add.sprite(50,50,'girl');
 
         house.scale.set(0.5,0.5);
 
@@ -58,7 +58,6 @@ BasicGame.Game.prototype = {
         jam.users = [];
 
         publicJam = jam;
-
         console.log("Created.");
 
         //  Honestly, just about anything could go here. It's YOUR game after all. Eat your heart out!
@@ -84,25 +83,26 @@ BasicGame.Game.prototype = {
 
                 client.exports.setId = function(id) {
                     console.log("Setting id");
-                    console.log(game.network);
-                    game.network.id = id;
+                    //console.log(game.network);
+                    window.netID = id;
+                    //window.
                     game.network.server.handshake();
                 }
 
-                console.log("Jam:");
-                console.log(this.jam);
+                //console.log("Jam:");
+                //console.log(this.jam);
                 client.exports.createUser = function(i, x, y)
                 {
-                    if(!i) return;
+                    //if(i == window.netID) return;
                     console.log("Got i of "+i);
-                    for(var user in publicJam.users) {
-                        if(user.id == i) return;
-                    }
+                    if(i == window.netID) console.log("That's me!");
 
                     console.log("Creating user!");
-                    console.log(publicJam);
-                    var user = new Girl(game,publicJam.sprites,x,y,i);
-                    publicJam.users[i] = user;
+                    //console.log(publicJam);
+                    publicJam.users[i] = new Girl(game,publicJam.sprites,x,y,i);
+                    publicJam.users[i].init();
+
+                    console.log(publicJam.users);
                 }
                 client.exports.removeUser = function(id)
                 {    
@@ -111,8 +111,6 @@ BasicGame.Game.prototype = {
                 }
                 client.exports.forClient = function(data)
                 {
-                    console.log("Got client data!");
-                    console.log(data);
                     userData = data;
                 }
                 client.exports.serverToUser = function(id, state)
@@ -136,20 +134,25 @@ BasicGame.Game.prototype = {
 
     update: function () {
         if(!this.game.network.ready) return;
-        for(var user in this.jam.users){
-            if(user == this.game.network.id)
+
+        for(var user in this.jam.users) {
+            if(user == window.netID){
                 publicJam.users[user].update();
+            } else {
+                publicJam.users[user].girl.body.x = window.userData[user].x;//.set(window.userData[user]);
+                publicJam.users[user].girl.body.y = window.userData[user].y;
+            }
         }
         //  Honestly, just about anything could go here. It's YOUR game after all. Eat your heart out!
         //this.jam.girl.update();
         this.game.physics.arcade.collide(this.jam.sprites,this.jam.floor);
         this.jam.treeline.x = this.game.camera.x*0.9;
         for (var i = 0; i < publicJam.users.length; i++) {
-            console.log(publicJam.users[i]);
+            //console.log(publicJam.users[i]);
             publicJam.users[i].update();
         };
         if(typeof userData != "undefined") {
-            console.log(userData);
+            //console.log(userData);
             for(var user in userData) {
                 if(user == this.game.network.id) continue;
                 partner.x = userData[user].x;

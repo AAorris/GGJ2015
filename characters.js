@@ -1,38 +1,41 @@
 Girl = function(game, layer, x, y, id) {
-	this.id = id;
-	this.game = game;
-	console.log("This game is " + this.game.add.sprite);
-	this.girl = layer.create(x,y,'girl');//game.add.sprite(x,y,'girl');//113,105
-	var girl = this.girl;
-	console.log(this.girl);
-    girl.enableBody = true;
-    girl.physicsBodyType = Phaser.Physics.ARCADE;
-    girl.collideWorldBounds = true;
-    //jam.girl = new Girl(this.game, jam.sprites,150,150);
-	var body = this.girl.body;
-	body.setSize(94,133,43,0);
-	body.bounce.y = 0.1;
-	girl.anchor.setTo(.5,1);
-	girl.animations.add('idle', [0,1,2], 4, true);
-	this.walk = girl.animations.add('walk', [3,4,5,6,7,8,9,10], 6, true);
-	girl.animations.play('idle');
-	this.controls = {
-		jump : game.input.keyboard.addKey(Phaser.Keyboard.W),
-		left : game.input.keyboard.addKey(Phaser.Keyboard.A),
-		right : game.input.keyboard.addKey(Phaser.Keyboard.D),
-	};
-    body.checkCollision.up = true;
-    body.checkCollision.down = true;
-    body.checkCollision.left= true;
-    body.checkCollision.right = true;
-    this.body = this.girl.body;
-    this.touching = this.girl.body.touching;
-    this.baseScale = 1.0;
-    game.camera.follow(girl);
+	this.init = function() {
+		this.id = id;
+		this.game = game;
+		//this.girl = game.add.sprite(x,y,'girl');
+
+		this.girl = layer.create(x,y,'girl');//game.add.sprite(x,y,'girl');//113,105
+		var girl = this.girl;
+		console.log(this.girl);
+	    girl.enableBody = true;
+	    girl.physicsBodyType = Phaser.Physics.ARCADE;
+	    girl.collideWorldBounds = true;
+	    //game.physics.enable(girl, Phaser.Physics.ARCADE);
+	    //jam.girl = new Girl(this.game, jam.sprites,150,150);
+		var body = this.girl.body;
+		body.setSize(94,133,43,0);
+		body.bounce.y = 0.1;
+		girl.anchor.setTo(.5,1);
+		girl.animations.add('idle', [0,1,2], 4, true);
+		this.walk = girl.animations.add('walk', [3,4,5,6,7,8,9,10], 6, true);
+		girl.animations.play('idle');
+		this.controls = {
+			jump : game.input.keyboard.addKey(Phaser.Keyboard.W),
+			left : game.input.keyboard.addKey(Phaser.Keyboard.A),
+			right : game.input.keyboard.addKey(Phaser.Keyboard.D),
+		};
+	    body.checkCollision.up = true;
+	    body.checkCollision.down = true;
+	    body.checkCollision.left= true;
+	    body.checkCollision.right = true;
+	    this.body = this.girl.body;
+	    this.touching = this.girl.body.touching;
+	    this.baseScale = 1.0;
+	    game.camera.follow(girl);
+	}
 }
 
 Girl.prototype.update = function() {
-	console.log("Updating.");
 	var controls = this.controls;
 	var velocity = this.body.velocity;
 	var acceleration = this.body.acceleration;
