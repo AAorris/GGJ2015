@@ -18,44 +18,45 @@
             game.load.spritesheet('ghost', 'img/ghost.png');
             game.load.spritesheet('bg', 'img/holdbg.png');
         }
-        //GLOBAL VARIABLES
+
         var ghost, girl;
         var bg;
         var cursors, wasd, jumpButton;
-        var ghostSpeed = 3;
+        var ghostSpeed = 2;
         var girlSpeed = 200;
         var jumpTimer = 0;
 
-
-
         function create () {
-            bg = game.add.tileSprite(0,0,1280,800,'bg');
+            bg = game.add.tileSprite(0,800-195,1280,800,'bg');
+            game.physics.enable(bg,Phaser.Physics.ARCADE);
+            bg.body.immovable = true;
+            bg.body.allowGravity = false;
+
             bg.fixedToCamera = true;
-
-
-
 
             ghost = game.add.sprite(game.world.centerX, game.world.centerY, 'ghost');
             game.physics.enable(ghost, Phaser.Physics.P2JS);
+
+            // ghost.body.collideWorldBounds = true;
+            // ghost.body.bounce.y = 0.1;
+            // ghost.body.bounce.x = 0.1;
+
             game.stage.backgroundColor='#00FF00';
 
             //game.physics.startSystem(Phaser.Physics.ARCADE);
-            
 
-
-            
             //Girl Initialization
             girl = game.add.sprite(game.world.x = 50,game.world.centerY, 'girl');            
             game.physics.enable(girl, Phaser.Physics.ARCADE);
             girl.body.collideWorldBounds = true;
             girl.body.bounce.y = 0.1;
             
-            game.camera.follow(girl);
+            game.camera.follow(girl,bg);
 
 
             //button references
             cursors = game.input.keyboard.createCursorKeys();
-            jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+            jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR); 
             wasd = {
                 up: game.input.keyboard.addKey(Phaser.Keyboard.W),
                 down: game.input.keyboard.addKey(Phaser.Keyboard.S),
@@ -72,22 +73,23 @@
 
         function update()
         {
+            game.physics.arcade.collide(girl,bg);
 
-            if(cursors.left.isDown && ghost.x >= 0){
+            if(cursors.left.isDown){
                 ghost.x -= ghostSpeed;
             }
-            if(cursors.right.isDown && ghost.x <= 1280){
+            if(cursors.right.isDown){
                 ghost.x += ghostSpeed;
             }
-            if(cursors.up.isDown && ghost.y >= 0){
+            if(cursors.up.isDown){
                 ghost.y -= ghostSpeed;
             }
-            if(cursors.down.isDown && ghost.y <= 800){
+            if(cursors.down.isDown){
                 ghost.y +=ghostSpeed;
             }
 
-            girl.body.velocity.x = 0;
-            girl.body.velocity.y = 0;
+            //girl.body.velocity.x = 0;
+            //girl.body.velocity.y = 0;
             if(wasd.left.isDown){
                 girl.body.velocity.x = -girlSpeed;
             }
