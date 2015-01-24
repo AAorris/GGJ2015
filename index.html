@@ -17,9 +17,12 @@
             game.load.spritesheet('girl', 'img/girl.png')
             game.load.spritesheet('ghost', 'img/ghost.png');
             game.load.spritesheet('floor', 'img/holdbg.png');
+            game.load.spritesheet('mouse', 'img/mouse.png', 225, 113, 12);
         }
 
-        var ghost, girl;
+        var spriteLayer;
+
+        var ghost, girl, mouse;
         var floor;
         var cursors, wasd, jumpButton;
         var ghostSpeed = 2;
@@ -27,8 +30,24 @@
         var jumpTimer = 0;
 
         function create () {
+            spriteLayer = game.add.group();
+            spriteLayer.enableBody = true;
+            spriteLayer.physicsBodyType = Phaser.Physics.ARCADE;
+
+            mouse = spriteLayer.create(0,100, 'mouse');
+            mouse.scale.set(0.5,0.5);
+            mouse.animations.add('nice',[0,1,2,3]);
+            mouse.animations.add('angry',[4,5,6,7]);
+            mouse.animations.play('nice', 4, true);
+
+            girl = spriteLayer.create(game.world.x = 50,game.world.centerY, 'girl');            
+            spriteLayer.collideWorldBounds = true;
+            //spriteLayer.bounce.y = 0.1;
+
+            //floor
             floor = game.add.tileSprite(0,800-195,1280,800,'floor');
-            game.physics.enable(floor,Phaser.Physics.ARCADE);
+
+            game.physics.enable([floor,mouse],Phaser.Physics.ARCADE);
             floor.body.immovable = true;
             floor.body.allowGravity = false;
 
@@ -46,10 +65,7 @@
             //game.physics.startSystem(Phaser.Physics.ARCADE);
 
             //Girl Initialization
-            girl = game.add.sprite(game.world.x = 50,game.world.centerY, 'girl');            
-            game.physics.enable(girl, Phaser.Physics.ARCADE);
-            girl.body.collideWorldBounds = true;
-            girl.body.bounce.y = 0.1;
+            
             
             game.camera.follow(girl,floor);
 
@@ -73,7 +89,7 @@
 
         function update()
         {
-            if(game.physics.arcade.collide(girl,floor))
+            if(game.physics.arcade.collide(spriteLayer,floor))
             {
                 //custom on_floor
                 girl.floored = true;
@@ -92,6 +108,16 @@
             }
             if(cursors.down.isDown){
                 ghost.y +=ghostSpeed;
+            }
+
+            var dist = girl.body.x - mouse.body.x;
+            mouse.body.acceleration.x = dist;
+            if(mouse.scale.x > 0 && mouse.body.velocity.x > 0) mouse.scale.x *=-1;
+            if(mouse.scale.x < 0 && mouse.body.velocity.x < 0) mouse.scale.x *=-1;
+            if(Math.abs(dist) < 100) {
+                mouse.animations.play('angry',4,true);
+            } else {
+                mouse.animations.play('nice',4,true);
             }
 
             //girl.body.velocity.x = 0;
