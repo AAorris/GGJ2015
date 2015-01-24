@@ -11,32 +11,57 @@
     window.onload = function() 
     {
 
-        var game = new Phaser.Game(1280, 800, Phaser.AUTO, '', {preload: preload, create: create, update: update, render: render});
+        var game = new Phaser.Game(1280, 800, Phaser.AUTO, '', {preload: preload, create: create, update: update, render: render});   
 
         function preload () {
+<<<<<<< HEAD
             game.load.spritesheet('girl', 'img/girl_spritesheet_idle.png',138,139);
             game.load.spritesheet('ghost', 'img/shade_spritesheet_idle.png',200,300);
+=======
+            game.load.spritesheet('girl', 'img/girl_spritesheet_idle.png',200,200);
+            game.load.spritesheet('ghost', 'img/shade_spritesheet_idle.png',184,276);
+>>>>>>> origin/aaron
             game.load.spritesheet('floor', 'img/holdbg.png');
             game.load.spritesheet('mouse', 'img/mouse.png', 225, 113, 12);
         }
 
         var spriteLayer;
+<<<<<<< HEAD
         var bg;
+=======
+        var ghostLayer;
+
+>>>>>>> origin/aaron
         var ghost, girl, mouse;
         var floor;
         var cursors, wasd, jumpButton;
+        var ghostSpeed = 250;
         var ghostSpeed = 2;
         var girlSpeed = 200;
         var jumpTimer = 0;
+<<<<<<< HEAD
 
         var ghostFacing = "right";
         var girlFacing = "left";
 
         function create () {
             game.world.setBounds(0,0,2560,800)
+=======
+        var ghostFacing = 'right';
+        var girlFacing = 'right';
+        function create () {
+
+
+>>>>>>> origin/aaron
             spriteLayer = game.add.group();
             spriteLayer.enableBody = true;
-            spriteLayer.physicsBodyType = Phaser.Physics.ARCADE;
+            spriteLayer.physicsBodyType = Phaser.Physics.ARCADE;            
+            spriteLayer.collideWorldBounds = true;
+
+            ghostLayer = game.add.group();
+            ghostLayer.enableBody = true;
+            ghostLayer.physicsBodyType = Phaser.Physics.ARCADE;
+            ghostLayer.collideWorldBounds = true;
 
             girl = spriteLayer.create(game.world.x = 50,game.world.centerY, 'girl');  
             girl.animations.add('girlIdle', [0,1,2] ,4,true);    
@@ -52,16 +77,19 @@
             mouse.animations.add('ghost',[8]);
             mouse.animations.play('nice', 4, true);
 
+<<<<<<< HEAD
             
             spriteLayer.collideWorldBounds = true;
             game.camera.follow(girl);
+=======
+>>>>>>> origin/aaron
 
             floor = game.add.tileSprite(0,800-195,1280,800,'floor');
-
-            game.physics.enable([floor,mouse],Phaser.Physics.ARCADE);
+            game.physics.enable(floor,Phaser.Physics.ARCADE);
             floor.body.immovable = true;
             floor.body.allowGravity = false;
 
+<<<<<<< HEAD
             ghost = game.add.sprite(game.world.centerX, game.world.centerY, 'ghost');
             ghost.animations.add('idle', [0,1,2,3,4], 7, true);
             ghost.anchor.setTo(.5,1);
@@ -72,8 +100,36 @@
             game.stage.backgroundColor='#00FF00';
 
             
-            game.camera.follow(girl,floor);
+=======
+            ghost = ghostLayer.create(game.world.centerX, game.world.centerY, 'ghost');
+            ghost.collideWorldBounds = true;
+            ghost.animations.add('idle', [0,1,2,3,4], 7, true);
+            ghost.anchor.setTo(.5,1);
+            ghost.animations.play('idle');
+            ghost.body.gravity.y = 0;
+            ghost.body.allowGravity = false;
 
+            game.stage.backgroundColor='#666';
+            //game.physics.enable(ghost, Phaser.Physics.P2JS);
+
+            //Girl Initialization
+            girl = spriteLayer.create(game.world.x = 50,game.world.centerY, 'girl');
+            //girl = game.add.sprite(game.world.x = 50,game.world.centerY, 'girl');       
+            //game.physics.enable(girl, Phaser.Physics.ARCADE);
+            //game.physics.arcade.collide(girl, bg);
+            //girl.body.collideWorldBounds = true;
+            girl.body.checkCollision.up = true;
+            girl.body.checkCollision.down = true;
+            girl.body.checkCollision.left= true;
+            girl.body.checkCollision.right = true;
+            game.camera.follow(girl);
+            girl.body.bounce.y = 0.1;
+            //game.camera.follow(girl,bg);
+            girl.anchor.setTo(.5,1);
+            girl.animations.add('girlIdle', [0,1,2] ,4,true);
+>>>>>>> origin/aaron
+            game.camera.follow(girl,floor);
+            girl.animations.play('girlIdle');
 
             cursors = game.input.keyboard.createCursorKeys();
             jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR); 
@@ -83,24 +139,27 @@
                 left: game.input.keyboard.addKey(Phaser.Keyboard.A),
                 right: game.input.keyboard.addKey(Phaser.Keyboard.D)
             };
-
             game.physics.arcade.gravity.y = 250;
         }
 
         function render(){
+<<<<<<< HEAD
 
+=======
+            game.debug.bodyInfo(ghost, 32,32);
+>>>>>>> origin/aaron
         }
 
         function update()
         {
+            game.physics.arcade.collide(ghostLayer,floor);
             if(game.physics.arcade.collide(spriteLayer,floor))
             {
 
                 girl.floored = true;
             } else {
                 girl.floored = false;
-            }
-
+            }            
             if(cursors.left.isDown){
                 ghost.x -= ghostSpeed;
                 ghostFacing = 'left';
@@ -119,9 +178,10 @@
                 ghost.y +=ghostSpeed;
                 ghostFacing = 'down';
             }
-
             var dist = (girl.body.x - mouse.body.x);
             var ghostDist = (ghost.x - mouse.body.x);
+            var dist = girl.body.x - mouse.body.x;
+
             mouse.body.acceleration.x = dist;
             if(mouse.scale.x > 0 && mouse.body.velocity.x > 0) mouse.scale.x *=-1;
             if(mouse.scale.x < 0 && mouse.body.velocity.x < 0) mouse.scale.x *=-1;
@@ -156,6 +216,7 @@
             }
             if (wasd.up.isDown && girl.floored && game.time.now > jumpTimer)
             {
+                girl.body.velocity.y = -200;
                 console.log("Jumping");
                 girl.body.velocity.y = -250;
                 jumpTimer = game.time.now + 750;
