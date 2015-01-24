@@ -16,23 +16,23 @@
         function preload () {
             game.load.spritesheet('girl', 'img/girl.png')
             game.load.spritesheet('ghost', 'img/ghost.png');
-            game.load.spritesheet('bg', 'img/holdbg.png');
+            game.load.spritesheet('floor', 'img/holdbg.png');
         }
 
         var ghost, girl;
-        var bg;
+        var floor;
         var cursors, wasd, jumpButton;
         var ghostSpeed = 2;
         var girlSpeed = 200;
         var jumpTimer = 0;
 
         function create () {
-            bg = game.add.tileSprite(0,800-195,1280,800,'bg');
-            game.physics.enable(bg,Phaser.Physics.ARCADE);
-            bg.body.immovable = true;
-            bg.body.allowGravity = false;
+            floor = game.add.tileSprite(0,800-195,1280,800,'floor');
+            game.physics.enable(floor,Phaser.Physics.ARCADE);
+            floor.body.immovable = true;
+            floor.body.allowGravity = false;
 
-            bg.fixedToCamera = true;
+            //floor.fixedToCamera = true;
 
             ghost = game.add.sprite(game.world.centerX, game.world.centerY, 'ghost');
             game.physics.enable(ghost, Phaser.Physics.P2JS);
@@ -51,7 +51,7 @@
             girl.body.collideWorldBounds = true;
             girl.body.bounce.y = 0.1;
             
-            game.camera.follow(girl,bg);
+            game.camera.follow(girl,floor);
 
 
             //button references
@@ -64,16 +64,22 @@
                 right: game.input.keyboard.addKey(Phaser.Keyboard.D)
             };
 
-            game.physics.arcade.gravity.y =250;
+            game.physics.arcade.gravity.y = 250;
         }
 
         function render(){
-
+            //game.debug.bodyInfo(girl, 32, 320);
         }
 
         function update()
         {
-            game.physics.arcade.collide(girl,bg);
+            if(game.physics.arcade.collide(girl,floor))
+            {
+                //custom on_floor
+                girl.floored = true;
+            } else {
+                girl.floored = false;
+            }
 
             if(cursors.left.isDown){
                 ghost.x -= ghostSpeed;
@@ -99,10 +105,17 @@
             if(wasd.down.isDown){
                 girl.body.velocity.y = +girlSpeed;
             }
-            if (jumpButton.isDown && girl.body.onFloor() && game.time.now > jumpTimer)
+            if(girl.body.onFloor()) {
+                console.log(girl.body.onFloor());
+            }
+            if (wasd.up.isDown && girl.floored && game.time.now > jumpTimer)
             {
+                console.log("Jumping");
                 girl.body.velocity.y = -250;
                 jumpTimer = game.time.now + 750;
+            }
+            if(girl.floored && Math.abs(girl.body.acceleration.x) < 0.01) {
+                girl.body.velocity.x *= .95;
             }
 
         }
