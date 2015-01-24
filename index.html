@@ -4,6 +4,7 @@
         <meta charset="UTF-8" />
         <title>hello phaser!</title>
         <script src="phaser-master/build/phaser.js"></script>
+        <script src="/eureca.js"></script>
     </head>
     <body>
     <script type="text/javascript">
@@ -11,7 +12,22 @@
     window.onload = function() 
     {
 
-        var game = new Phaser.Game(1280, 800, Phaser.AUTO, '', {preload: preload, create: create, update: update, render: render});   
+
+        var ready = false;
+        var eurecaServer;
+
+        var eurecaClientSetup = function() {
+            var eurecaClient = new Eureca.Client();
+
+            eurecaClient.ready(function(proxy) {
+                eurecaServer = proxy;
+                create();
+                ready = true;
+                console.log("Ready.");
+            });
+        };
+
+        var game = new Phaser.Game(1280, 800, Phaser.AUTO, '', {preload: preload, create: eurecaClientSetup, update: update, render: render});   
 
         function preload () {
             game.load.spritesheet('girl', 'img/girl_spritesheet_idle.png',200,200);
@@ -31,8 +47,8 @@
         var jumpTimer = 0;
         var ghostFacing = 'right';
         var girlFacing = 'right';
-        function create () {
 
+        function create () {
             game.world.setBounds(0,0,2560,800);
 
             spriteLayer = game.add.group();
@@ -101,11 +117,13 @@
         }
 
         function render(){
+            if(!ready) return;
             game.debug.bodyInfo(girl, 32,32);
         }
 
         function update()
         {
+            if(!ready) return;
             game.physics.arcade.collide(ghostLayer,floor);
             game.physics.arcade.collide(spriteLayer,floor);
 
