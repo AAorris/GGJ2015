@@ -61,12 +61,8 @@ BasicGame.Preloader.prototype = {
 			this.state.start('MainMenu');
 		}*/
 
-		if(this.game.network.ready) {
-			this.ready = true;
-			this.state.start('MainMenu');
-		} else {
-			console.log("Stuck");
-		}
+		this.ready = true;
+		this.state.start('MainMenu');
 
 	}
 
