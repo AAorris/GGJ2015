@@ -26,7 +26,8 @@
         var ghost, girl, mouse;
         var floor;
         var cursors, wasd, jumpButton;
-        var ghostSpeed = 100;
+        var ghostSpeed = 250;
+        var ghostSpeed = 2;
         var girlSpeed = 200;
         var jumpTimer = 0;
         var ghostFacing = 'right';
@@ -99,33 +100,35 @@
         }
 
         function render(){
-            game.debug.bodyInfo(girl, 32,32);
+            game.debug.bodyInfo(ghost, 32,32);
         }
 
         function update()
         {
             game.physics.arcade.collide(ghostLayer,floor);
-            game.physics.arcade.collide(spriteLayer,floor);
-
-            ghost.body.acceleration.set(0,0);
-            ghost.body.velocity.x *= 0.95;
-            ghost.body.velocity.y *= 0.95;
+            if(game.physics.arcade.collide(spriteLayer,floor))
+            {
+                //custom on_floor
+                girl.floored = true;
+            } else {
+                girl.floored = false;
+            }            
             if(cursors.left.isDown){
-                ghost.body.acceleration.x -= ghostSpeed*10;
+                ghost.x -= ghostSpeed;
                 ghostFacing = 'left';
                 ghost.scale.x=-1;
             }
             if(cursors.right.isDown){
-                ghost.body.acceleration.x += ghostSpeed*10;
+                ghost.x += ghostSpeed;
                 ghostFacing = 'right';
                 ghost.scale.x=1;
             }
             if(cursors.up.isDown){
-                ghost.body.acceleration.y -= ghostSpeed*10;
+                ghost.y -= ghostSpeed;
                 ghostFacing = 'up';
             }
             if(cursors.down.isDown){
-                ghost.body.acceleration.y +=ghostSpeed*10;
+                ghost.y +=ghostSpeed;
                 ghostFacing = 'down';
             }
             var dist = (girl.body.x - mouse.body.x);
@@ -163,14 +166,17 @@
                 girl.body.velocity.y = +girlSpeed;
                 girlFacing = 'down';
             }
-            if (wasd.up.isDown && (girl.body.onFloor() || girl.body.touching.down) && game.time.now > jumpTimer)
+            if(girl.body.onFloor()) {
+                console.log(girl.body.onFloor());
+            }
+            if (wasd.up.isDown && girl.floored && game.time.now > jumpTimer)
             {
                 girl.body.velocity.y = -200;
                 console.log("Jumping");
                 girl.body.velocity.y = -250;
                 jumpTimer = game.time.now + 750;
             }
-            if((girl.body.onFloor() || girl.body.touching.down) && Math.abs(girl.body.acceleration.x) < 0.01) {
+            if(girl.floored && Math.abs(girl.body.acceleration.x) < 0.01) {
                 girl.body.velocity.x *= .95;
             }
 
