@@ -22,7 +22,7 @@
         var ghost, girl;
         var bg;
         var cursors, wasd, jumpButton;
-        var ghostSpeed = 250;
+        var ghostSpeed = 2;
         var girlSpeed = 200;
         var jumpTimer = 0;
 
@@ -31,27 +31,28 @@
             bg.fixedToCamera = true;
 
 
+
+
             ghost = game.add.sprite(game.world.centerX, game.world.centerY, 'ghost');
-            game.physics.enable(ghost);
-            ghost.body.collideWorldBounds = true;
-            ghost.body.bounce.y = 0.1;
-            ghost.body.bounce.x = 0.1;
-
-            
+            game.physics.enable(ghost, Phaser.Physics.P2JS);
+            // ghost.body.collideWorldBounds = true;
+            // ghost.body.bounce.y = 0.1;
+            // ghost.body.bounce.x = 0.1;
             game.stage.backgroundColor='#00FF00';
-            game.physics.startSystem(Phaser.Physics.ARCADE);
+
+            //game.physics.startSystem(Phaser.Physics.ARCADE);
             
 
+
+            
             //Girl Initialization
             girl = game.add.sprite(game.world.x = 50,game.world.centerY, 'girl');            
-            game.physics.enable(girl);
+            game.physics.enable(girl, Phaser.Physics.ARCADE);
             girl.body.collideWorldBounds = true;
             girl.body.bounce.y = 0.1;
-            game.physics.enable(girl, Phaser.Physics.ARCADE);
-
-
-
+            
             game.camera.follow(girl);
+
 
             //button references
             cursors = game.input.keyboard.createCursorKeys();
@@ -62,9 +63,8 @@
                 left: game.input.keyboard.addKey(Phaser.Keyboard.A),
                 right: game.input.keyboard.addKey(Phaser.Keyboard.D)
             };
-            //game.time.events.loop(150, fire, this);
 
-            game.physics.arcade.gravity.y =9000;
+            game.physics.arcade.gravity.y =250;
         }
 
         function render(){
@@ -74,19 +74,17 @@
         function update()
         {
 
-            ghost.body.velocity.x = 0;
-            ghost.body.velocity.y = 0;
             if(cursors.left.isDown){
-                ghost.body.velocity.x = -ghostSpeed;
+                ghost.x -= ghostSpeed;
             }
             if(cursors.right.isDown){
-                ghost.body.velocity.x = ghostSpeed;
+                ghost.x += ghostSpeed;
             }
             if(cursors.up.isDown){
-                ghost.body.velocity.y = -ghostSpeed;
+                ghost.y -= ghostSpeed;
             }
             if(cursors.down.isDown){
-                ghost.body.velocity.y = +ghostSpeed;
+                ghost.y +=ghostSpeed;
             }
 
             girl.body.velocity.x = 0;
