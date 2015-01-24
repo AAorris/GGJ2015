@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>hello phaser!</title>
+        <script src="phaser-master/build/phaser.js"></script>
+    </head>
+    <body>
+    <script type="text/javascript">
+
+    window.onload = function() 
+    {
+
+        var game = new Phaser.Game(1280, 800, Phaser.AUTO, '', {preload: preload, create: create, update: update, render: render});
+
+        function preload () {
+            game.load.spritesheet('girl', 'img/girl.png')
+            game.load.spritesheet('ghost', 'img/ghost.png');
+            game.load.spritesheet('bg', 'img/holdbg.png');
+        }
+
+        var ghost, girl;
+        var bg;
+        var cursors, wasd, jumpButton;
+        var ghostSpeed = 250;
+        var girlSpeed = 200;
+        var jumpTimer = 0;
+
+        function create () {
+            bg = game.add.tileSprite(0,0,1280,800,'bg');
+            bg.fixedToCamera = true;
+
+
+            ghost = game.add.sprite(game.world.centerX, game.world.centerY, 'ghost');
+            game.physics.enable(ghost);
+            ghost.body.collideWorldBounds = true;
+            ghost.body.bounce.y = 0.1;
+            ghost.body.bounce.x = 0.1;
+
+            
+            game.stage.backgroundColor='#00FF00';
+            game.physics.startSystem(Phaser.Physics.ARCADE);
+            
+
+            //Girl Initialization
+            girl = game.add.sprite(game.world.x = 50,game.world.centerY, 'girl');            
+            game.physics.enable(girl);
+            girl.body.collideWorldBounds = true;
+            girl.body.bounce.y = 0.1;
+            game.physics.enable(girl, Phaser.Physics.ARCADE);
+
+
+
+            game.camera.follow(girl);
+
+            //button references
+            cursors = game.input.keyboard.createCursorKeys();
+            jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+            wasd = {
+                up: game.input.keyboard.addKey(Phaser.Keyboard.W),
+                down: game.input.keyboard.addKey(Phaser.Keyboard.S),
+                left: game.input.keyboard.addKey(Phaser.Keyboard.A),
+                right: game.input.keyboard.addKey(Phaser.Keyboard.D)
+            };
+            //game.time.events.loop(150, fire, this);
+
+            game.physics.arcade.gravity.y =9000;
+        }
+
+        function render(){
+
+        }
+
+        function update()
+        {
+
+            ghost.body.velocity.x = 0;
+            ghost.body.velocity.y = 0;
+            if(cursors.left.isDown){
+                ghost.body.velocity.x = -ghostSpeed;
+            }
+            if(cursors.right.isDown){
+                ghost.body.velocity.x = ghostSpeed;
+            }
+            if(cursors.up.isDown){
+                ghost.body.velocity.y = -ghostSpeed;
+            }
+            if(cursors.down.isDown){
+                ghost.body.velocity.y = +ghostSpeed;
+            }
+
+            girl.body.velocity.x = 0;
+            girl.body.velocity.y = 0;
+            if(wasd.left.isDown){
+                girl.body.velocity.x = -girlSpeed;
+            }
+            if(wasd.right.isDown){
+                girl.body.velocity.x = girlSpeed;
+            }
+            if(wasd.down.isDown){
+                girl.body.velocity.y = +girlSpeed;
+            }
+            if (jumpButton.isDown && girl.body.onFloor() && game.time.now > jumpTimer)
+            {
+                girl.body.velocity.y = -250;
+                jumpTimer = game.time.now + 750;
+            }
+
+        }
+
+    };
+
+    </script>
+
+    </body>
+</html>
