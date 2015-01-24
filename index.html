@@ -18,13 +18,15 @@
             game.load.spritesheet('ghost', 'img/ghost.png');
             game.load.spritesheet('bg', 'img/holdbg.png');
         }
-
+        //GLOBAL VARIABLES
         var ghost, girl;
         var bg;
         var cursors, wasd, jumpButton;
-        var ghostSpeed = 2;
+        var ghostSpeed = 3;
         var girlSpeed = 200;
         var jumpTimer = 0;
+
+
 
         function create () {
             bg = game.add.tileSprite(0,0,1280,800,'bg');
@@ -35,9 +37,6 @@
 
             ghost = game.add.sprite(game.world.centerX, game.world.centerY, 'ghost');
             game.physics.enable(ghost, Phaser.Physics.P2JS);
-            // ghost.body.collideWorldBounds = true;
-            // ghost.body.bounce.y = 0.1;
-            // ghost.body.bounce.x = 0.1;
             game.stage.backgroundColor='#00FF00';
 
             //game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -74,16 +73,16 @@
         function update()
         {
 
-            if(cursors.left.isDown){
+            if(cursors.left.isDown && ghost.x >= 0){
                 ghost.x -= ghostSpeed;
             }
-            if(cursors.right.isDown){
+            if(cursors.right.isDown && ghost.x <= 1280){
                 ghost.x += ghostSpeed;
             }
-            if(cursors.up.isDown){
+            if(cursors.up.isDown && ghost.y >= 0){
                 ghost.y -= ghostSpeed;
             }
-            if(cursors.down.isDown){
+            if(cursors.down.isDown && ghost.y <= 800){
                 ghost.y +=ghostSpeed;
             }
 
