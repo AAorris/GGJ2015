@@ -23,8 +23,8 @@ BasicGame.testLevel = function (game) {
 
     //  You can use any of these from any function within this State.
     //  But do consider them as being 'reserved words', i.e. don't create a property for your own game called "world" or you'll over-write the world reference.
-
 };
+
 BasicGame.testLevel.prototype = {
 
     create: function () {
@@ -85,24 +85,24 @@ BasicGame.testLevel.prototype = {
         //girl init
         //girl = spriteLayer.create(game.world.x = 50,game.world.centerY, 'girl');
 
-        //ghost layer init
-        var ghostLayer = this.ghostLayer = game.add.group();
-        ghostLayer.enableBody = true;
-        ghostLayer.physicsBodyType = Phaser.Physics.ARCADE;
-        //ghostLayer.collideWorldBounds = true;
-        //ghost init
+        // //ghost layer init
+        // var ghostLayer = this.ghostLayer = game.add.group();
+        // ghostLayer.enableBody = true;
+        // ghostLayer.physicsBodyType = Phaser.Physics.ARCADE;
+        // //ghostLayer.collideWorldBounds = true;
+        // //ghost init
 
-        var ghost = this.ghost = ghostLayer.create(game.world.x = 400, game.world.centerY, 'ghost');
-        ghost.collideWorldBounds = true;
-        //ghost.fixedToCamera = true;
-        ghost.animations.add('idle', [0,1,2,3,4], 7, true);
-        ghost.animations.add('possess',[1,2,3,4,5],6,true);
-        ghost.animations.add('neophyte',[17,18,19,20],7,true);
-        ghost.animations.add('transform',[26,27,28,29,30,31,32,33,34],9,true);
-        ghost.anchor.setTo(.5,1);
-        ghost.body.gravity.y = 0;
-        ghost.body.allowGravity = false;
-        ghost.animations.play('idle');
+        // var ghost = this.ghost = ghostLayer.create(game.world.x = 400, game.world.centerY, 'ghost');
+        // ghost.collideWorldBounds = true;
+        // //ghost.fixedToCamera = true;
+        // ghost.animations.add('idle', [0,1,2,3,4], 7, true);
+        // ghost.animations.add('possess',[1,2,3,4,5],6,true);
+        // ghost.animations.add('neophyte',[17,18,19,20],7,true);
+        // ghost.animations.add('transform',[26,27,28,29,30,31,32,33,34],9,true);
+        // ghost.anchor.setTo(.5,1);
+        // ghost.body.gravity.y = 0;
+        // ghost.body.allowGravity = false;
+        // ghost.animations.play('idle');
 
         //mouse init
         var mouse = this.mouse = spriteLayer.create(300,100, 'mouse');
@@ -114,24 +114,12 @@ BasicGame.testLevel.prototype = {
         //girl in focus
         //game.camera.follow(girl);
 
-        fGround = game.add.sprite(0,0, 'fGround');
-        game.physics.enable(fGround, Phaser.Physics.ARCADE);
-        fGround.body.allowGravity = false;
-
         //treeline = game.add.sprite(0,380, 'treeline');
         //game.physics.enable(treeline, Phaser.Physics.ARCADE);
         //treeline.body.allowGravity = false;
 
         //alias input systems to references
-        var cursors = this.cursors = game.input.keyboard.createCursorKeys();
-        var jumpButton = this.jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR); 
-        var wasd = this.wasd = {
-            up: game.input.keyboard.addKey(Phaser.Keyboard.W),
-            down: game.input.keyboard.addKey(Phaser.Keyboard.S),
-            left: game.input.keyboard.addKey(Phaser.Keyboard.A),
-            right: game.input.keyboard.addKey(Phaser.Keyboard.D),
-            poss: game.input.keyboard.addKey(Phaser.Keyboard.L)
-        };
+
         this.enemies = [];
         this.enemies[0] = mouse;
         this.enemies[1] = cat;
@@ -152,76 +140,67 @@ BasicGame.testLevel.prototype = {
         console.log("Created.");
 
         //  Honestly, just about anything could go here. It's YOUR game after all. Eat your heart out!
-        this.girl = new Girl(game,jam.sprites,100, 100,'');
-        this.girl.init();
+        
+        if(!HAS_NODE){
+            this.girl = new Girl(game,jam.sprites,100, 100,'');
+            game.camera.follow(this.girl.girl);
+        }
+        this.ghost = new Ghost(game,jam.sprites, 100, 100, '');
+
+        this.network = new NodeNetwork();
+        this.network.setup(this.game,jam.sprites);
+        //this.girl.init();
+
+        fGround = game.add.sprite(0,0, 'fGround');
+        game.physics.enable(fGround, Phaser.Physics.ARCADE);
+        fGround.body.allowGravity = false;
     },
 
     update: function () {
         var game = this.game;
-        if(HAS_NODE==true){
-            if(!this.game.network.ready) return;
-            if(!window.characters) return;
-            if(!window.userData) return;
-            for(var user in window.userData) {
-                if(user == window.netID){
-                    //console.log(window.userData[user]);
-                    if(window.characters[user])
-                        window.characters[user].update();
-                } else if(window.characters[user]) {
-                    window.characters[user].body.x = window.userData[user].x;
-                    window.characters[user].body.y = window.userData[user].y;
-                    window.characters[user].body.vx = window.userData[user].vx;
-                    window.characters[user].body.vy = window.userData[user].vy;
-                    window.characters[user].body.ax = window.userData[user].ax;
-                    window.characters[user].body.ay = window.userData[user].ay;
-                    window.characters[user].facing = window.userData[user].facing;
-
-                }
+        if(HAS_NODE==true && !this.network.ready){
+            for(var id in window.characters) {
+                if(window.characters[id].canon==false)
+                    window.characters[id].sync.to(window.characters[id].sync.data);
             }
+            // for(var user in window.userData) {
+            //     if(user == window.netID){
+            //         //console.log(window.userData[user]);
+            //         if(window.characters[user])
+            //             window.characters[user].update();
+            //     } else if(window.characters[user]) {
+            //         window.characters[user].body.x = window.userData[user].x;
+            //         window.characters[user].body.y = window.userData[user].y;
+            //         window.characters[user].body.vx = window.userData[user].vx;
+            //         window.characters[user].body.vy = window.userData[user].vy;
+            //         window.characters[user].body.ax = window.userData[user].ax;
+            //         window.characters[user].body.ay = window.userData[user].ay;
+            //         window.characters[user].facing = window.userData[user].facing;
+            //     }
+            // }
+
+        } else {
 
         }
 
-        //console.log("winning");
-
-        
-        console.log("updating");
-
-        this.girl.update();
         this.physics.arcade.collide(this.jam.sprites,this.floor);
-
         this.physics.arcade.collide(this.mouse,this.floor);
         this.physics.arcade.collide(this.bear,this.floor);
         this.physics.arcade.collide(this.deer,this.floor);
         this.physics.arcade.collide(this.cat,this.floor);
 
-            //Ghost Movement Decision Tree
-            // else if(Math.abs(dist) < 100) {
-            //     mouse.animations.play('angry',4,true);
-            // } else {
-            //     mouse.animations.play('nice',4,true);
-            // }
+        //this.girl.update();
+        for(var id in window.characters) {
+            window.characters[id].update();
+        };
+        this.ghost.update();
+        //console.log(this.girl);
+        //this.girl.sync.to(this.mouse);
 
-        //     //Bird
-        // bird.body.velocity.x=0;
-        // if(bird.body.x >=birdMaxX && birdSpeed > 0){
-        //     birdSpeed = (-birdSpeed);
-        //     bird.scale.x=1;
-        // }
-        // else if(bird.body.x <= birdMin && birdSpeed < 0){
-        //     birdSpeed = (-birdSpeed);
-        //     bird.scale.x=-1;
-        // }
-        // bird.body.velocity.x +=birdSpeed;
     },
 
     quitGame: function (pointer) {
-
-        //  Here you should destroy anything you no longer need.
-        //  Stop music, delete sprites, purge caches, free resources, all that good stuff.
-
-        //  Then let's go back to the main menu.
         this.state.start('MainMenu');
-
     }
 
 };
