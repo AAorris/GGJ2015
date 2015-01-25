@@ -21,7 +21,9 @@ Ghost = function(game, layer, x, y, id) {
 
 	this.sprite = layer.create(x,y,'ghost');
 	this.sprite = enableArcade(this.sprite);
-	this.sprite.body.gravity.y = .1;
+	this.sprite.anchor.setTo(0.5,0.5);
+	this.sprite.body.gravity.y = .01;
+	this.sprite.drag.set(0.1,0.1);
 	this.body = this.sprite.body;
 }
 
@@ -39,18 +41,21 @@ Ghost.prototype.update = function() {
         this.sprite.body.y = 800 - this.sprite.body.height;
     }
 
+    this.sprite.body.acceleration.set(0,-400);
     if(this.controls.left.isDown){
         this.sprite.x -= ghostSpeed;
         ghostFacing = 'left';
-        this.sprite.scale.x=1;
+        this.sprite.scale.x=-1;
     }
     if(this.controls.right.isDown){
         this.sprite.x += ghostSpeed;
         ghostFacing = 'right';
-        this.sprite.scale.x=-1;
+        this.sprite.scale.x=1;
     }
     if(this.controls.up.isDown){
         this.sprite.y -= ghostSpeed;
+        this.sprite.body.velocity.y -= 10;
+        this.sprite.body.acceleration.y -= 10;
         ghostFacing = 'up';
     }
     if(this.controls.down.isDown){
