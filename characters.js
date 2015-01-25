@@ -1,3 +1,21 @@
+
+
+/*When communicating over the network we need a standard object for things to share*/
+var SyncPackage = function () {
+    this.x = 0;
+    this.y = 0;
+    this.velocity = {x:0, y:0};
+    this.acceleration = {x:0, y:0};
+    this.action = '';
+};
+
+SyncPackage.prototype.sync = function(other) {
+    for(var property in this) {
+        other[property] = this[property];
+    }
+};
+
+
 var enableArcade = function(sprite) {
 	sprite.enableBody = true;
 	sprite.physicsBodyType = Phaser.Physics.ARCADE;
@@ -146,8 +164,8 @@ Girl.prototype.update = function() {
 	var floored = (girl.body.onFloor() || girl.body.touching.down);
 
 	//Girl movement decision tree
-    fGround.body.velocity.x = 0;
-    treeline.body.velocity.x = 0;
+    //fGround.body.velocity.x = 0;
+    //treeline.body.velocity.x = 0;
 
     if(controls.left.isDown){
         girl.body.velocity.x = -girlSpeed;
@@ -213,11 +231,11 @@ Girl.prototype.update = function() {
 	// 	this.girl.animations.play('idle');
 	// }
 
-    this.game.network.server.userToServer({
-    	x:this.body.x,
-    	y:this.body.y,
-    	state:"idle"
-    });
+    // this.game.network.server.userToServer({
+    // 	x:this.body.x,
+    // 	y:this.body.y,
+    // 	state:"idle"
+    // });
 }
 
 Girl.prototype.remove = function() {

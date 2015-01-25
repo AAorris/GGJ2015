@@ -35,24 +35,24 @@ BasicGame.testLevel.prototype = {
     game.physics.arcade.gravity.y = 450;
 
 
-    backdrop = game.add.sprite(0,0, 'backdrop');
+    var backdrop = this.backdrop = game.add.sprite(0,0, 'backdrop');
     backdrop.fixedToCamera = true;
 
 
-    treeline = game.add.sprite(0,380, 'treeline');
+    var treeline = this.treeline = game.add.sprite(0,380, 'treeline');
     game.physics.enable(treeline, Phaser.Physics.ARCADE);
     treeline.body.allowGravity = false;
 
 
         //treeline = game.add.tileSprite(-500,380,4840,500,'treeline');
-        floor = game.add.tileSprite(0,680,3840,800,'floor');
+        var floor = this.floor = game.add.tileSprite(0,680,3840,800,'floor');
         game.physics.enable(floor,Phaser.Physics.ARCADE);
         floor.body.immovable = true;
         floor.body.allowGravity = false;
         mGround = game.add.sprite(0,0,'mGround');
         //ADD OBJECTS TO THE STAGE, START ANIMATIONS
         //initialize sprite layer
-        spriteLayer = game.add.group();
+        var spriteLayer = this.spriteLayer = game.add.group();
         spriteLayer.enableBody = true;
         spriteLayer.physicsBodyType = Phaser.Physics.ARCADE;            
         spriteLayer.collideWorldBounds = true;
@@ -60,25 +60,25 @@ BasicGame.testLevel.prototype = {
 
         //ground tile loading and placement
         //bird init
-        bird = spriteLayer.create(800, game.world.centerY, 'bird');
+        var bird = this.bird = spriteLayer.create(800, game.world.centerY, 'bird');
         bird.animations.add('birdidle', [0,1,2,3] ,8,true);
         bird.anchor.setTo(.5,1);
         bird.body.gravity.y=0;
         bird.body.allowGravity=false;
         bird.animations.play('birdidle');
         //cat init
-        cat = spriteLayer.create(500, game.world.centerY - 400,'cat');
+        var cat = this.cat = spriteLayer.create(500, game.world.centerY - 400,'cat');
         cat.animations.add('cat',[0,1,2,3,4,5,6,7,8,9,10,11],6,true);
         cat.anchor.setTo(.5,1);
         cat.animations.play('cat',6,true);
         //cat.animations.add('catAttack', [0,1,2,3,4,5,6],6,true);
         //deer init
-        deer = spriteLayer.create(1500, game.world.centerY, 'deer');
+        var deer = this.deer = spriteLayer.create(1500, game.world.centerY, 'deer');
         deer.animations.add('deer',[0,1,2,3,4,5,6,7,8,9,10,11],6,true);
         deer.anchor.setTo(.5,1);
         deer.animations.play('deer',8,true);
         //bear init
-        bear = spriteLayer.create(1000, game.world.centerY, 'bear');
+        var bear = this.bear = spriteLayer.create(1000, game.world.centerY, 'bear');
         bear.animations.add('bear',[0,1,2,3,4,5,6,7,8,9,10,11],7,true);
         bear.anchor.setTo(.5,1);
         bear.animations.play('bear',6,true);
@@ -86,13 +86,13 @@ BasicGame.testLevel.prototype = {
         //girl = spriteLayer.create(game.world.x = 50,game.world.centerY, 'girl');
 
         //ghost layer init
-        ghostLayer = game.add.group();
+        var ghostLayer = this.ghostLayer = game.add.group();
         ghostLayer.enableBody = true;
         ghostLayer.physicsBodyType = Phaser.Physics.ARCADE;
         //ghostLayer.collideWorldBounds = true;
         //ghost init
 
-        ghost = ghostLayer.create(game.world.x = 400, game.world.centerY, 'ghost');
+        var ghost = this.ghost = ghostLayer.create(game.world.x = 400, game.world.centerY, 'ghost');
         ghost.collideWorldBounds = true;
         //ghost.fixedToCamera = true;
         ghost.animations.add('idle', [0,1,2,3,4], 7, true);
@@ -105,7 +105,7 @@ BasicGame.testLevel.prototype = {
         ghost.animations.play('idle');
 
         //mouse init
-        mouse = spriteLayer.create(300,100, 'mouse');
+        var mouse = this.mouse = spriteLayer.create(300,100, 'mouse');
         mouse.scale.set(0.5,0.5);
         mouse.animations.add('nice',[0,1,2,3,2,1]);
         mouse.animations.add('angry',[4,5,6,7,6,5]);
@@ -123,67 +123,76 @@ BasicGame.testLevel.prototype = {
         //treeline.body.allowGravity = false;
 
         //alias input systems to references
-        cursors = game.input.keyboard.createCursorKeys();
-        jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR); 
-        wasd = {
+        var cursors = this.cursors = game.input.keyboard.createCursorKeys();
+        var jumpButton = this.jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR); 
+        var wasd = this.wasd = {
             up: game.input.keyboard.addKey(Phaser.Keyboard.W),
             down: game.input.keyboard.addKey(Phaser.Keyboard.S),
             left: game.input.keyboard.addKey(Phaser.Keyboard.A),
             right: game.input.keyboard.addKey(Phaser.Keyboard.D),
             poss: game.input.keyboard.addKey(Phaser.Keyboard.L)
         };
-
-        enemies[0] = mouse;
-        enemies[1] = cat;
-        enemies[2] = bear;
-        enemies[3] = deer;
-        enemies[4] = bird;
+        this.enemies = [];
+        this.enemies[0] = mouse;
+        this.enemies[1] = cat;
+        this.enemies[2] = bear;
+        this.enemies[3] = deer;
+        this.enemies[4] = bird;
 
         this.jam = {};
         var jam = this.jam;
-        publicJam = jam;
-        if(!publicJam.sprites) {
-            publicJam.sprites = game.add.group();
-            publicJam.sprites.enableBody = true;
-            publicJam.sprites.physicsBodyType = Phaser.Physics.ARCADE;
+
+        //publicJam = jam;
+        if(!jam.sprites) {
+            jam.sprites = game.add.group();
+            jam.sprites.enableBody = true;
+            jam.sprites.physicsBodyType = Phaser.Physics.ARCADE;
         }
+        //jam.sp
         console.log("Created.");
 
         //  Honestly, just about anything could go here. It's YOUR game after all. Eat your heart out!
+        this.girl = new Girl(game,jam.sprites,100, 100,'');
+        this.girl.init();
     },
 
     update: function () {
         var game = this.game;
-        if(HAS_NODE==true)
+        if(HAS_NODE==true){
             if(!this.game.network.ready) return;
-        if(!window.characters) return;
-        if(!window.userData) return;
+            if(!window.characters) return;
+            if(!window.userData) return;
+            for(var user in window.userData) {
+                if(user == window.netID){
+                    //console.log(window.userData[user]);
+                    if(window.characters[user])
+                        window.characters[user].update();
+                } else if(window.characters[user]) {
+                    window.characters[user].body.x = window.userData[user].x;
+                    window.characters[user].body.y = window.userData[user].y;
+                    window.characters[user].body.vx = window.userData[user].vx;
+                    window.characters[user].body.vy = window.userData[user].vy;
+                    window.characters[user].body.ax = window.userData[user].ax;
+                    window.characters[user].body.ay = window.userData[user].ay;
+                    window.characters[user].facing = window.userData[user].facing;
+
+                }
+            }
+
+        }
 
         //console.log("winning");
 
-        for(var user in window.userData) {
-            if(user == window.netID){
-                //console.log(window.userData[user]);
-                if(window.characters[user])
-                    window.characters[user].update();
-            } else if(window.characters[user]) {
-                window.characters[user].body.x = window.userData[user].x;
-                window.characters[user].body.y = window.userData[user].y;
-                window.characters[user].body.vx = window.userData[user].vx;
-                window.characters[user].body.vy = window.userData[user].vy;
-                window.characters[user].body.ax = window.userData[user].ax;
-                window.characters[user].body.ay = window.userData[user].ay;
-                window.characters[user].facing = window.userData[user].facing;
+        
+        console.log("updating");
 
-            }
-        }
+        this.girl.update();
+        this.physics.arcade.collide(this.jam.sprites,this.floor);
 
-        this.game.physics.arcade.collide(this.jam.sprites,floor);
-
-        game.physics.arcade.collide(mouse,floor);
-        game.physics.arcade.collide(bear,floor);
-        game.physics.arcade.collide(deer,floor);
-        game.physics.arcade.collide(cat,floor);
+        this.physics.arcade.collide(this.mouse,this.floor);
+        this.physics.arcade.collide(this.bear,this.floor);
+        this.physics.arcade.collide(this.deer,this.floor);
+        this.physics.arcade.collide(this.cat,this.floor);
 
             //Ghost Movement Decision Tree
             // else if(Math.abs(dist) < 100) {
@@ -192,17 +201,17 @@ BasicGame.testLevel.prototype = {
             //     mouse.animations.play('nice',4,true);
             // }
 
-            //Bird
-        bird.body.velocity.x=0;
-        if(bird.body.x >=birdMaxX && birdSpeed > 0){
-            birdSpeed = (-birdSpeed);
-            bird.scale.x=1;
-        }
-        else if(bird.body.x <= birdMin && birdSpeed < 0){
-            birdSpeed = (-birdSpeed);
-            bird.scale.x=-1;
-        }
-        bird.body.velocity.x +=birdSpeed;
+        //     //Bird
+        // bird.body.velocity.x=0;
+        // if(bird.body.x >=birdMaxX && birdSpeed > 0){
+        //     birdSpeed = (-birdSpeed);
+        //     bird.scale.x=1;
+        // }
+        // else if(bird.body.x <= birdMin && birdSpeed < 0){
+        //     birdSpeed = (-birdSpeed);
+        //     bird.scale.x=-1;
+        // }
+        // bird.body.velocity.x +=birdSpeed;
     },
 
     quitGame: function (pointer) {
