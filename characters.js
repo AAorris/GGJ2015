@@ -91,6 +91,12 @@ Ghost.prototype.update = function() {
     }
 }
 
+Ghost.prototype.remove = function() {
+	console.log("Removing");
+	this.girl.alive = false;
+	this.girl.destroy();
+}
+
 Girl = function(game, layer, x, y, id) {
 	this.init = function() {
 		this.id = id;
@@ -216,6 +222,6 @@ Girl.prototype.update = function() {
 
 Girl.prototype.remove = function() {
 	console.log("Removing");
-	this.alive = false;
+	this.girl.alive = false;
 	this.girl.destroy();
 }
