@@ -203,7 +203,72 @@ BasicGame.Game.prototype = {
                     }
                     console.log(window.characters);
                 }
+
+                client.exports.createGirl = function(i, x, y)
+                {
+                    //if(i == window.netID) return;
+                    console.log("Got i of "+i);
+
+                    for(var id in window.characters) {
+                        if(id==i) {
+                            console.log("Already here!");
+                            return;
+                        }
+                    }
+
+                    console.log("Creating user!");
+                    //console.log(publicJam);
+                    window.characters[i] = new Girl(game,publicJam.sprites,x,y,i);
+                    window.characters[i].init();
+                    if(i == window.netID){
+                        console.log("That's me!");
+                        game.camera.follow(window.characters[i].girl);
+                    }
+                    console.log(window.characters);
+                }
+
+                client.exports.createGhost = function(i, x, y)
+                {
+                    console.log("Making ghost for " + i);
+
+                    for(var id in window.characters) {
+                        if(id==i) {
+                            console.log("Already here!");
+                            return;
+                        }
+                    }
+
+                    console.log("Creating ghost...");
+                    window.characters.ghost = new Ghost(game,publicJam.sprites, x, y, i);
+                    window.characters[i] = window.characters.ghost;
+                    //window.characters.ghost.init();
+                    if(i == window.netID) {
+                        console.log("That's me!");
+                        var filter = new Phaser.Filter.Gray(game);
+                        game.world.filters = [filter];
+                        //console.log(window.characters.ghost);
+                        //game.camera.follow(window.characters.ghost.sprite);
+                    }
+                    //console.log(window.characters);
+                }
+
                 client.exports.removeUser = function(id)
+                {
+                    console.log("Removing " + id);
+                    if(window.characters[id])
+                        window.characters[id].remove();
+
+                    //console.log('killing ', id, publicJam.users[id]);
+                }
+                client.exports.removeGirl = function(id)
+                {
+                    console.log("Removing " + id);
+                    if(window.characters[id])
+                        window.characters[id].remove();
+
+                    //console.log('killing ', id, publicJam.users[id]);
+                }
+                client.exports.removeGhost = function(id)
                 {
                     console.log("Removing " + id);
                     if(window.characters[id])
@@ -250,7 +315,8 @@ BasicGame.Game.prototype = {
         for(var user in window.userData) {
             if(user == window.netID){
                 //console.log(window.userData[user]);
-                window.characters[user].update();
+                if(window.characters[user])
+                    window.characters[user].update();
             } else if(window.characters[user]) {
                 window.characters[user].body.x = window.userData[user].x;
                 window.characters[user].body.y = window.userData[user].y;
@@ -271,57 +337,6 @@ BasicGame.Game.prototype = {
         game.physics.arcade.collide(cat,floor);
 
             //Ghost Movement Decision Tree
-            if(ghost.body.x <= game.camera.x){
-                ghost.body.x = game.camera.x;
-            }
-            if (ghost.body.x >= game.camera.x + 1280 - ghost.body.width) {
-                ghost.body.x = game.camera.x + 1280 - ghost.body.width;
-            }
-            if (ghost.body.y <= 0) {
-                ghost.body.y = game.camera.y;
-            }
-            if (ghost.body.y >= 800 - ghost.body.height) {
-                ghost.body.y = 800 - ghost.body.height;
-            }
-            if(cursors.left.isDown){
-                ghost.x -= ghostSpeed;
-                ghostFacing = 'left';
-                ghost.scale.x=1;
-            }
-            if(cursors.right.isDown){
-                ghost.x += ghostSpeed;
-                ghostFacing = 'right';
-                ghost.scale.x=-1;
-            }
-            if(cursors.up.isDown){
-                ghost.y -= ghostSpeed;
-                ghostFacing = 'up';
-            }
-            if(cursors.down.isDown){
-                ghost.y +=ghostSpeed;
-                ghostFacing = 'down';
-            }
-
-            for(i = 0; i < 5;i++)
-            {
-             if(Math.abs((enemies[i].body.center.x - ghost.body.center.x)/(enemies[i].body.center.y - ghost.body.center.y)) <= .02)
-             {
-                if(game.input.keyboard.isDown(Phaser.Keyboard.L)){
-                    possess(enemies[i]);
-                }
-            }
-
-            //mouse movement and decision logic
-            var ghostDist = (ghost.x - mouse.body.x);
-            //var dist = girl.body.x - mouse.body.x;
-            //mouse.body.acceleration.x = dist;
-            if(mouse.scale.x > 0 && mouse.body.velocity.x > 0) mouse.scale.x *=-1;
-            if(mouse.scale.x < 0 && mouse.body.velocity.x < 0) mouse.scale.x *=-1;
-            if(Math.abs(ghostDist) < 100) {
-                mouse.body.acceleration.x = 0;
-                mouse.body.velocity.x=0;
-                mouse.animations.play('ghost',4,true);
-            }
             // else if(Math.abs(dist) < 100) {
             //     mouse.animations.play('angry',4,true);
             // } else {
@@ -329,22 +344,16 @@ BasicGame.Game.prototype = {
             // }
 
             //Bird
-            bird.body.velocity.x=0;
-            if(bird.body.x >=birdMaxX && birdSpeed > 0){
-                birdSpeed = (-birdSpeed);
-                bird.scale.x=1;
-            }
-            else if(bird.body.x <= birdMin && birdSpeed < 0){
-                birdSpeed = (-birdSpeed);
-                bird.scale.x=-1;
-            }
-            bird.body.velocity.x +=birdSpeed;
-
-            
-            if(Math.abs(ghost.body.acceleration.x) < 0.01) {
-                ghost.body.velocity.x *= .90;
-            }
+        bird.body.velocity.x=0;
+        if(bird.body.x >=birdMaxX && birdSpeed > 0){
+            birdSpeed = (-birdSpeed);
+            bird.scale.x=1;
         }
+        else if(bird.body.x <= birdMin && birdSpeed < 0){
+            birdSpeed = (-birdSpeed);
+            bird.scale.x=-1;
+        }
+        bird.body.velocity.x +=birdSpeed;
     },
 
     quitGame: function (pointer) {
