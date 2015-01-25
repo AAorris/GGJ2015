@@ -1,17 +1,30 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
     <head>
         <meta charset="UTF-8" />
         <title>hello phaser!</title>
         <!--<script src="entities.js"></script>-->
         <script src="phaser-master/build/phaser.min.js"></script>
-        <script src="/eureca.js"></script>
+
+        <script type='text/javascript'>
+            var HAS_NODE = false; //if you're working locally, set to false and you will be good.
+        </script>
+
+        <script src='/eureca.js'></script>
+        <script src='networking.js'></script>
         <script src="filters.js"></script>
+
         <script src="characters.js"></script>
+
+        <!--Preloader loader-->
         <script src="boot.js"></script>
+        <!--Preloader-->
         <script src="preloader.js"></script>
+
         <script src="menu.js"></script>
-        <script src="game.js"></script>
+        <script src="testlevel.js"></script>
+
+        <!--Character data-->
         <script src="characters.js"></script>
         <style>
         body {
@@ -26,34 +39,23 @@
     window.onload = function()
     {
         var game = new Phaser.Game(1280, 800, Phaser.AUTO, '');
+        //This is all junk from by breakdown earlier when I couldn't figure out variable scope
+        //TODO : remove
         var publicJam;
         var userData = false;
         this.characters = [];
         var partner;
         var netID;
+
         //  Add the States your game has.
         //  You don't have to do this in the html, it could be done in your Boot state too, but for simplicity I'll keep it here.
         
         game.state.add('Boot', BasicGame.Boot);
         game.state.add('Preloader', BasicGame.Preloader);
         game.state.add('MainMenu', BasicGame.MainMenu);
-        game.state.add('Game', BasicGame.Game);
+        game.state.add('Game', BasicGame.testLevel);
         //  Now start the Boot state.
         game.state.start('Boot');
-
-        // var game = new Game();
-        // var net = new Network();
-
-        // net.setup(startGame);
-
-        // var startGame = function() {
-        //     phaser = new Phaser.Game(1280, 800, Phaser.AUTO, '', {
-        //         preload: game.preload, 
-        //         create: game.create, 
-        //         update: game.update, 
-        //         render: game.render
-        //     });   
-        // }
     }
     </script>
 

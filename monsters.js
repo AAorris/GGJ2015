@@ -1,0 +1,3 @@
+Monster = function() {
+
+}
