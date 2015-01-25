@@ -8,6 +8,31 @@ BasicGame.Preloader = function (game) {
 
 };
 
+var spriteLayer, backgroundLayer;
+var ghostLayer;
+var enemies = [];
+var ghost, mouse, bird, bear, deer, cat;
+var floor;
+var cursors, wasd, jumpButton;
+var ghostSpeed = 350;
+var ghostSpeed = 4;
+var girlSpeed = 500;
+var jumpTimer = 0;
+var backdrop;
+
+var ghostFacing = "left";
+//var girlFacing = 'right';
+var birdMaxX = 700;
+var birdMin = 300;
+var birdSpeed = 200;
+var treeline;
+var mGround, fGround;
+
+var moveloaded = false;
+var idleloaded = true;
+var smackLoaded = false;
+var girlattacking = false;
+
 BasicGame.Preloader.prototype = {
 
 	preload: function () {
@@ -30,12 +55,22 @@ BasicGame.Preloader.prototype = {
 		//this.load.bitmapFont('caslon', 'fonts/caslon.png', 'fonts/caslon.xml');
 		//	+ lots of other required assets here
 
-        this.load.spritesheet('girl', 'img/girl_spritesheet_aggregate.png',113,105,11);
-        this.load.spritesheet('ghost', 'img/shade_spritesheet_idle.png',184,276);
-        this.load.spritesheet('floor', 'img/Groundtile.png',320,160);
-        this.load.spritesheet('treeline', 'img/tree-layer.png',2006,778);
-        this.load.spritesheet('mouse', 'img/mouse.png', 225, 113, 12);
-        this.load.spritesheet('house', 'img/background_house1.png', 1192, 542);
+        this.game.load.spritesheet('girl', 'img/girl.png',146,164);
+
+        this.game.load.spritesheet('ghost', 'img/ghost.png',200,300);
+        this.game.load.spritesheet('floor', 'img/holdbg.png');
+        
+        this.game.load.spritesheet('mouse', 'img/mouse.png', 225, 113, 12);
+        this.game.load.spritesheet('bird', 'img/bird.png',139,137);
+        this.game.load.spritesheet('bear', 'img/bear.png',486,375);
+        this.game.load.spritesheet('deer','img/deer.png',155,353);
+        this.game.load.spritesheet('cat','img/cat.png',168,113);
+        this.game.load.spritesheet('catAttack','img/cat_attack.png',169,117);
+
+        this.game.load.image('mGround', 'img/mGround.png');
+        this.game.load.image('fGround', 'img/foreground.png');
+        this.game.load.image('backdrop', 'img/backdrop.png');
+        this.game.load.image('treeline', 'img/treeline_long.png');
 
 	},
 

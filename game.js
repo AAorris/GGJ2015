@@ -26,38 +26,128 @@ BasicGame.Game = function (game) {
     //  But do consider them as being 'reserved words', i.e. don't create a property for your own game called "world" or you'll over-write the world reference.
 
 };
- 
 BasicGame.Game.prototype = {
 
     create: function () {
-        var game = this.game;
-        game.world.setBounds(-1280,0,2560,800);
-        this.game.physics.arcade.gravity.y = 250;
-        this.jam = {};
-        var jam = this.jam;
-        var treeline = jam.treeline = game.add.tileSprite(0,-50,2006,778,'treeline');
-        var floor = jam.floor = game.add.tileSprite(-800,600+100,1920,160,'floor');
-        var house = jam.house = game.add.tileSprite(0,400+100,1192,542,'house');
+    var game = this.game;
+    //Current Game information
+    game.world.setBounds(0,0,3840,800);
+    game.stage.backgroundColor='#163233';
+    game.physics.arcade.gravity.y = 450;
 
 
-        //partner = game.add.sprite(50,50,'girl');
+    backdrop = game.add.sprite(0,0, 'backdrop');
+    backdrop.fixedToCamera = true;
 
-        house.scale.set(0.5,0.5);
 
+    treeline = game.add.sprite(0,380, 'treeline');
+    game.physics.enable(treeline, Phaser.Physics.ARCADE);
+    treeline.body.allowGravity = false;
+
+
+        //treeline = game.add.tileSprite(-500,380,4840,500,'treeline');
+        floor = game.add.tileSprite(0,680,3840,800,'floor');
         game.physics.enable(floor,Phaser.Physics.ARCADE);
         floor.body.immovable = true;
         floor.body.allowGravity = false;
-        floor.body.setSize(1280,800,0,60);
+        mGround = game.add.sprite(0,0,'mGround');
+        //ADD OBJECTS TO THE STAGE, START ANIMATIONS
+        //initialize sprite layer
+        spriteLayer = game.add.group();
+        spriteLayer.enableBody = true;
+        spriteLayer.physicsBodyType = Phaser.Physics.ARCADE;            
+        spriteLayer.collideWorldBounds = true;
+        //floor of level init
 
-        this.jam.sprites = this.add.group();
-        jam.sprites.enableBody = true;
-        jam.sprites.physicsBodyType = Phaser.Physics.ARCADE;
-        jam.sprites.collideWorldBounds = true;
-        //jam.girl = new Girl(this.game, jam.sprites,150,150);
+        //ground tile loading and placement
+        //bird init
+        bird = spriteLayer.create(800, game.world.centerY, 'bird');
+        bird.animations.add('birdidle', [0,1,2,3] ,8,true);
+        bird.anchor.setTo(.5,1);
+        bird.body.gravity.y=0;
+        bird.body.allowGravity=false;
+        bird.animations.play('birdidle');
+        //cat init
+        cat = spriteLayer.create(500, game.world.centerY - 400,'cat');
+        cat.animations.add('cat',[0,1,2,3,4,5,6,7,8,9,10,11],6,true);
+        cat.anchor.setTo(.5,1);
+        cat.animations.play('cat',6,true);
+        //cat.animations.add('catAttack', [0,1,2,3,4,5,6],6,true);
+        //deer init
+        deer = spriteLayer.create(1500, game.world.centerY, 'deer');
+        deer.animations.add('deer',[0,1,2,3,4,5,6,7,8,9,10,11],6,true);
+        deer.anchor.setTo(.5,1);
+        deer.animations.play('deer',8,true);
+        //bear init
+        bear = spriteLayer.create(1000, game.world.centerY, 'bear');
+        bear.animations.add('bear',[0,1,2,3,4,5,6,7,8,9,10,11],7,true);
+        bear.anchor.setTo(.5,1);
+        bear.animations.play('bear',6,true);
+        //girl init
+        //girl = spriteLayer.create(game.world.x = 50,game.world.centerY, 'girl');
 
-        jam.users = [];
+        //ghost layer init
+        ghostLayer = game.add.group();
+        ghostLayer.enableBody = true;
+        ghostLayer.physicsBodyType = Phaser.Physics.ARCADE;
+        //ghostLayer.collideWorldBounds = true;
+        //ghost init
 
+        ghost = ghostLayer.create(game.world.x = 400, game.world.centerY, 'ghost');
+        ghost.collideWorldBounds = true;
+        //ghost.fixedToCamera = true;
+        ghost.animations.add('idle', [0,1,2,3,4], 7, true);
+        ghost.animations.add('possess',[1,2,3,4,5],6,true);
+        ghost.animations.add('neophyte',[17,18,19,20],7,true);
+        ghost.animations.add('transform',[26,27,28,29,30,31,32,33,34],9,true);
+        ghost.anchor.setTo(.5,1);
+        ghost.body.gravity.y = 0;
+        ghost.body.allowGravity = false;
+        ghost.animations.play('idle');
+
+        //mouse init
+        mouse = spriteLayer.create(300,100, 'mouse');
+        mouse.scale.set(0.5,0.5);
+        mouse.animations.add('nice',[0,1,2,3,2,1]);
+        mouse.animations.add('angry',[4,5,6,7,6,5]);
+        mouse.animations.add('ghost',[8]);
+        mouse.animations.play('nice', 4, true);
+        //girl in focus
+        //game.camera.follow(girl);
+
+        fGround = game.add.sprite(0,0, 'fGround');
+        game.physics.enable(fGround, Phaser.Physics.ARCADE);
+        fGround.body.allowGravity = false;
+
+        //treeline = game.add.sprite(0,380, 'treeline');
+        //game.physics.enable(treeline, Phaser.Physics.ARCADE);
+        //treeline.body.allowGravity = false;
+
+        //alias input systems to references
+        cursors = game.input.keyboard.createCursorKeys();
+        jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR); 
+        wasd = {
+            up: game.input.keyboard.addKey(Phaser.Keyboard.W),
+            down: game.input.keyboard.addKey(Phaser.Keyboard.S),
+            left: game.input.keyboard.addKey(Phaser.Keyboard.A),
+            right: game.input.keyboard.addKey(Phaser.Keyboard.D),
+            poss: game.input.keyboard.addKey(Phaser.Keyboard.L)
+        };
+
+        enemies[0] = mouse;
+        enemies[1] = cat;
+        enemies[2] = bear;
+        enemies[3] = deer;
+        enemies[4] = bird;
+
+        this.jam = {};
+        var jam = this.jam;
         publicJam = jam;
+        if(!publicJam.sprites) {
+            publicJam.sprites = game.add.group();
+            publicJam.sprites.enableBody = true;
+            publicJam.sprites.physicsBodyType = Phaser.Physics.ARCADE;
+        }
         console.log("Created.");
 
         //  Honestly, just about anything could go here. It's YOUR game after all. Eat your heart out!
@@ -114,9 +204,12 @@ BasicGame.Game.prototype = {
                     console.log(window.characters);
                 }
                 client.exports.removeUser = function(id)
-                {    
-                    window.characters[i].remove();
-                    console.log('killing ', id, publicJam.users[id]);
+                {
+                    console.log("Removing " + id);
+                    if(window.characters[id])
+                        window.characters[id].remove();
+
+                    //console.log('killing ', id, publicJam.users[id]);
                 }
                 client.exports.forClient = function(data)
                 {
@@ -129,7 +222,11 @@ BasicGame.Game.prototype = {
                     if(users[id]) {
                         publicJam.users[id].girl.body.x = state.x;
                         publicJam.users[id].girl.body.y = state.y;
-
+                        publicJam.users[id].girl.body.vx = state.vx;
+                        publicJam.users[id].girl.body.vy = state.vy;
+                        publicJam.users[id].girl.body.ax = state.ax;
+                        publicJam.users[id].girl.body.ay = state.ay;
+                        publicJam.users[id].facing = state.facing;
                         //print(state.x+ " " +users[id].girl.body.x);
                         //console.log(users[id]);
                         //console.log(id+" was at "+state.x + " " + state.y);
@@ -143,6 +240,7 @@ BasicGame.Game.prototype = {
     },
 
     update: function () {
+        var game = this.game;
         if(!this.game.network.ready) return;
         if(!window.characters) return;
         if(!window.userData) return;
@@ -154,34 +252,99 @@ BasicGame.Game.prototype = {
                 //console.log(window.userData[user]);
                 window.characters[user].update();
             } else if(window.characters[user]) {
-                //console.log(window.userData[user]);
-                //console.log("chars");
-                //console.log(window.characters[user]);
-                //console.log(window.characters[user][user]);
                 window.characters[user].body.x = window.userData[user].x;
                 window.characters[user].body.y = window.userData[user].y;
-                //publicJam.users[user].girl.body.x = window.userData[user].x;//.set(window.userData[user]);
-                //publicJam.users[user].girl.body.y = window.userData[user].y;
+                window.characters[user].body.vx = window.userData[user].vx;
+                window.characters[user].body.vy = window.userData[user].vy;
+                window.characters[user].body.ax = window.userData[user].ax;
+                window.characters[user].body.ay = window.userData[user].ay;
+                window.characters[user].facing = window.userData[user].facing;
+
             }
         }
-        //  Honestly, just about anything could go here. It's YOUR game after all. Eat your heart out!
-        //this.jam.girl.update();
-        this.game.physics.arcade.collide(this.jam.sprites,this.jam.floor);
-        this.jam.treeline.x = this.game.camera.x*0.9;
-        for (var i = 0; i < publicJam.users.length; i++) {
-            //console.log(publicJam.users[i]);
-            publicJam.users[i].update();
-        };
-        // if(typeof userData != "undefined") {
-        //     //console.log(userData);
-        //     for(var user in userData) {
-        //         if(user == this.game.network.id) continue;
-        //         partner.x = userData[user].x;
-        //         partner.y = userData[user].y;
-        //         //console.log(partner.x+" "+partner.y);
-        //         //break;
-        //     }
-        // }
+
+        this.game.physics.arcade.collide(this.jam.sprites,floor);
+
+        game.physics.arcade.collide(mouse,floor);
+        game.physics.arcade.collide(bear,floor);
+        game.physics.arcade.collide(deer,floor);
+        game.physics.arcade.collide(cat,floor);
+
+            //Ghost Movement Decision Tree
+            if(ghost.body.x <= game.camera.x){
+                ghost.body.x = game.camera.x;
+            }
+            if (ghost.body.x >= game.camera.x + 1280 - ghost.body.width) {
+                ghost.body.x = game.camera.x + 1280 - ghost.body.width;
+            }
+            if (ghost.body.y <= 0) {
+                ghost.body.y = game.camera.y;
+            }
+            if (ghost.body.y >= 800 - ghost.body.height) {
+                ghost.body.y = 800 - ghost.body.height;
+            }
+            if(cursors.left.isDown){
+                ghost.x -= ghostSpeed;
+                ghostFacing = 'left';
+                ghost.scale.x=1;
+            }
+            if(cursors.right.isDown){
+                ghost.x += ghostSpeed;
+                ghostFacing = 'right';
+                ghost.scale.x=-1;
+            }
+            if(cursors.up.isDown){
+                ghost.y -= ghostSpeed;
+                ghostFacing = 'up';
+            }
+            if(cursors.down.isDown){
+                ghost.y +=ghostSpeed;
+                ghostFacing = 'down';
+            }
+
+            for(i = 0; i < 5;i++)
+            {
+             if(Math.abs((enemies[i].body.center.x - ghost.body.center.x)/(enemies[i].body.center.y - ghost.body.center.y)) <= .02)
+             {
+                if(game.input.keyboard.isDown(Phaser.Keyboard.L)){
+                    possess(enemies[i]);
+                }
+            }
+
+            //mouse movement and decision logic
+            var ghostDist = (ghost.x - mouse.body.x);
+            //var dist = girl.body.x - mouse.body.x;
+            //mouse.body.acceleration.x = dist;
+            if(mouse.scale.x > 0 && mouse.body.velocity.x > 0) mouse.scale.x *=-1;
+            if(mouse.scale.x < 0 && mouse.body.velocity.x < 0) mouse.scale.x *=-1;
+            if(Math.abs(ghostDist) < 100) {
+                mouse.body.acceleration.x = 0;
+                mouse.body.velocity.x=0;
+                mouse.animations.play('ghost',4,true);
+            }
+            // else if(Math.abs(dist) < 100) {
+            //     mouse.animations.play('angry',4,true);
+            // } else {
+            //     mouse.animations.play('nice',4,true);
+            // }
+
+            //Bird
+            bird.body.velocity.x=0;
+            if(bird.body.x >=birdMaxX && birdSpeed > 0){
+                birdSpeed = (-birdSpeed);
+                bird.scale.x=1;
+            }
+            else if(bird.body.x <= birdMin && birdSpeed < 0){
+                birdSpeed = (-birdSpeed);
+                bird.scale.x=-1;
+            }
+            bird.body.velocity.x +=birdSpeed;
+
+            
+            if(Math.abs(ghost.body.acceleration.x) < 0.01) {
+                ghost.body.velocity.x *= .90;
+            }
+        }
     },
 
     quitGame: function (pointer) {
